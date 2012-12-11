@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009"
+					   xmlns:s="library://ns.adobe.com/flex/spark"
+					   xmlns:mx="library://ns.adobe.com/flex/mx"
+					   xmlns:wikipage="services.wikipage.*"
+					   xmlns:servire="services.servire.*">
+	<s:layout>
+		<s:VerticalLayout gap="20" paddingBottom="20" paddingLeft="20" paddingRight="20"
+						  paddingTop="20"/>
+	</s:layout>
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.controls.HTML;
+			import mx.rpc.events.ResultEvent;			
+			
+			protected function login_button_clickHandler(event:MouseEvent):void
+			{
+				WikiLogInResult.token = wikiPage.WikiLogIn(/*Enter value(s) for */ "login", user_input.text, password_input.text , "xml");
+				WikiLogInResult.addEventListener(ResultEvent.RESULT, generateTokenFromUser);
+			}
+			
+			/**
+			 * 
+			 */
+			protected function generateTokenFromUser(event:Event):void{
+				loginState(WikiLogInResult.lastResult);						
+			}
+			
+			protected function wikiLogInWithToken(action:String, lgname:String, lgpassword:String, lgtoken:String, format:String):void
+			{
+				WikiLogInWithTokenResult.token = wikiPage.WikiLogInWithToken(action, lgname, lgpassword, lgtoken, format);
+				WikiLogInWithTokenResult.addEventListener(ResultEvent.RESULT , callLoginWithTokenHandler);
+			}
+			
+			protected function callLoginWithTokenHandler(event:Event):void{
+				text_area_page_view.text = WikiLogInWithTokenResult.lastResult['api']['login']['result'];
+				if(WikiLogInWithTokenResult.lastResult['api']['login']['result'] == "Success"){					
+					text_area_page_view.text += "\n" + WikiLogInWithTokenResult.lastResult['api']['login']['lguserid'];
+					text_area_page_view.text += "\n" + WikiLogInWithTokenResult.lastResult['api']['login']['lgusername'];
+					text_area_page_view.text += "\n" + WikiLogInWithTokenResult.lastResult['api']['login']['lgtoken'];
+					text_area_page_view.text += "\n" + WikiLogInWithTokenResult.lastResult['api']['login']['cookieprefix'];
+					text_area_page_view.text += "\n" + WikiLogInWithTokenResult.lastResult['api']['login']['sessionid'];
+				}
+				
+				loginState(WikiLogInWithTokenResult.lastResult['api']);
+			}
+			
+			protected function loginState(resultLogin:Object):void{
+				var result:Object = resultLogin['login']['result'];	
+				
+				if(result == "NeedToken"){
+					//Faire appel au servire de login avec la session
+					Alert.show("Call the Login with session service Token : " + resultLogin['login']['token']);	
+					wikiLogInWithToken("login", user_input.text, password_input.text, resultLogin['login']['token'], "xml");					
+				}
+				if(result == "NoName"){
+					Alert.show("Please insert your user name");
+				}
+				if(result == "Illegal"){
+					Alert.show("Illegal username, please try again");
+				}
+				if(result == "NotExists"){
+					Alert.show("The username you provided doesn't exist");
+				}
+				if(result == "EmptyPass"){
+					Alert.show("Please insert your password");
+				}
+				if(result == "WrongPass"){
+					Alert.show("Wrong password, please try again");
+				}
+				if(result == "WrongPluginPass"){
+					Alert.show("Wrong password, please try again");
+				}
+				if(result == "CreateBlocked"){
+					Alert.show("Sorry your IP is blocked");
+				}
+				if(result == "Throttled"){
+					Alert.show("You've logged in too many times in a short time");
+				}
+				if(result == "Blocked"){
+					Alert.show("Blocked user");
+				}
+			}
+			
+			
+			protected function edit_button_clickHandler(event:MouseEvent):void
+			{
+				WikiEditTokenResult.token = wikiPage.WikiEditToken(/*Enter value(s) for */ "query", "info|revisions", "edit", "Montpellier", "xml");
+				WikiEditTokenResult.addEventListener(ResultEvent.RESULT, getEditToken);
+			}
+			
+			protected function getEditToken(event:Event):void{
+				text_area_page_view.text = "Edit Token : " + WikiEditTokenResult.lastResult['api']['query']['pages']['page']['edittoken'];
+				
+				wikiEditPage("edit", "Lyon", "2", "UnCommentHere", "modification du section 2",
+					WikiEditTokenResult.lastResult['api']['query']['pages']['page']['revisions']['rev']['timestamp'],
+					WikiEditTokenResult.lastResult['api']['query']['pages']['page']['edittoken'], "json");
+			}
+			
+			
+					
+			
+			protected function wikiEditPage(action:String, title:String, section:String, summary:String, text:String, basetimestamp:String, token:String, format:String):void
+			{
+				WikiEditPageResult.token = wikiPage.WikiEditPage(action, title, section, summary, text, basetimestamp, token, format);
+				WikiEditPageResult.addEventListener(ResultEvent.RESULT, editingFinished);
+			}
+			
+			protected function editingFinished(event:Event):void{
+				//text_area_page_view.text = WikiEditPageResult.lastResult;
+			}
+			
+			
+			protected function logout_button_clickHandler(event:MouseEvent):void
+			{
+				WikiLogOutResult.token = wikiPage.WikiLogOut(/*Enter value(s) for */ "logout");
+			}	
+			
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<s:CallResponder id="WikiLogInResult"/>
+		<wikipage:WikiPage id="wikiPage"
+						   fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+						   showBusyCursor="true"/>
+		<s:CallResponder id="WikiLogInWithTokenResult"/>
+		<s:CallResponder id="WikiEditTokenResult"/>
+		<s:CallResponder id="WikiLogOutResult"/>
+		<s:CallResponder id="WikiEditPageResult"/>
+
+	</fx:Declarations>
+	<s:HGroup width="50%" height="10%">
+		<s:TextInput width="50%" height="100%"/>
+		<s:Button id="search_page" width="50%" height="100%" label="Search"/>
+	</s:HGroup>
+	<s:HGroup width="100%" height="25%">
+		<s:TextInput id="user_input"/>
+		<s:TextInput id="password_input"/>
+		<s:Button id="login_button" width="107" label="Sign In"
+				  click="login_button_clickHandler(event)"/>
+		<s:Button id="logout_button" label="Sing Out" click="logout_button_clickHandler(event)"/>
+		<s:Button id="edit_button" label="Edit" click="edit_button_clickHandler(event)"/>
+	</s:HGroup>
+	<s:TextArea id="text_area_page_view" width="100%" height="100%"/>
+</s:WindowedApplication>
