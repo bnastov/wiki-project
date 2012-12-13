@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Module xmlns:fx="http://ns.adobe.com/mxml/2009"
+		  xmlns:s="library://ns.adobe.com/flex/spark"
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  xmlns:mediawikiservice="services.mediawikiservice.*"
+		  width="100%" height="100%" 
+		  contentCreationComplete="init()">
+	
+	<fx:Script>
+		<![CDATA[
+			import com.adobe.LoginManager;
+			
+			import mx.controls.Alert;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.object_proxy;
+			
+			private var loginManager:LoginManager;
+			
+			/**
+			 * Initializes the event listeners once Parsley has completed
+			 * injecting.
+			 */
+			public function init():void {
+				loginManager = new LoginManager(this);
+				loginForm.addEventListener(KeyboardEvent.KEY_DOWN, formCheckKey);
+				//loginManager.addEventListener(SecurityEvent.LOGIN_FAILED, loginFailed);
+			}
+			
+			/** Called to clear the form elements. */
+			public function clearForm():void {
+				username.text = "";
+				password.text = "";
+			}
+			
+			/** Event handler to cause a login when enter is pressed. */
+			private function formCheckKey(event:KeyboardEvent):void {
+				if(event.charCode == Keyboard.ENTER) {				
+					doLogin();
+				}
+			}
+			
+			/** Invoked to login using the credentials in the form. */
+			private function doLogin():void {
+				loginManager.login(username.text, password.text);
+				//close();
+			}
+			
+			/** Close the login popup*/
+			private function close():void{				
+				parentApplication.closeLogin();
+			}
+			
+			public function setHeaderMessage(message:String):void{}
+		]]>
+	</fx:Script>
+	
+	<s:Form id="loginForm" horizontalCenter="0" verticalCenter="0">
+		<s:FormItem label="User Name:">
+			<s:TextInput id="username"/>
+		</s:FormItem>
+		<s:FormItem label="Password:">
+			<s:TextInput id="password" displayAsPassword="true"/>
+		</s:FormItem>
+		<s:FormItem>
+			<s:HGroup>
+				<s:Button id="button" label="Login" click="doLogin()"/>
+				<s:Button label="New Accout"/>
+				<s:Button label="Back" click="close()"/>
+			</s:HGroup>			
+		</s:FormItem>
+		<s:FormItem>
+			<s:Label id="status" visible="false" color="#FF0000" text="Status"/>
+		</s:FormItem>
+	</s:Form>
+</s:Module>
