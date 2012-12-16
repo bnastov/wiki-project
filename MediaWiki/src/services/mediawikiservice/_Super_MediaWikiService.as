@@ -42,6 +42,14 @@ internal class _Super_MediaWikiService extends com.adobe.fiber.services.wrapper.
          operation.resultType = Object;
          operations.push(operation);
 
+         operation = new mx.rpc.http.Operation(null, "WikiGetEditToken");
+         operation.url = "http://127.0.0.1:8887/mediawiki-1.20.0/api.php";
+         operation.method = "GET";
+         argsArray = new Array("action","prop","intoken","titles","format");
+         operation.argumentNames = argsArray;         
+         operation.resultType = Object;
+         operations.push(operation);
+
          _serviceControl.operationList = operations;  
 
 
@@ -89,6 +97,24 @@ internal class _Super_MediaWikiService extends com.adobe.fiber.services.wrapper.
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("WikiLogOut");
 		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(action) ;
+        return _internal_token;
+    }
+     
+    /**
+      * This method is a generated wrapper used to call the 'WikiGetEditToken' operation. It returns an mx.rpc.AsyncToken whose 
+      * result property will be populated with the result of the operation when the server response is received. 
+      * To use this result from MXML code, define a CallResponder component and assign its token property to this method's return value. 
+      * You can then bind to CallResponder.lastResult or listen for the CallResponder.result or fault events.
+      *
+      * @see mx.rpc.AsyncToken
+      * @see mx.rpc.CallResponder 
+      *
+      * @return an mx.rpc.AsyncToken whose result property will be populated with the result of the operation when the server response is received.
+      */
+    public function WikiGetEditToken(action:String, prop:String, intoken:String, titles:String, format:String) : mx.rpc.AsyncToken
+    {
+        var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("WikiGetEditToken");
+		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(action,prop,intoken,titles,format) ;
         return _internal_token;
     }
      
