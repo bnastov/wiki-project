@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:wikipediagetter="services.wikipediagetter.*"
+		 xmlns:searchview="searchview.*"
+		 width="200" height="100%">
+	<s:layout>
+		<s:VerticalLayout paddingBottom="10" paddingLeft="5" paddingRight="10" paddingTop="20"/>
+	</s:layout>
+	<fx:Script>
+		<![CDATA[
+			import flash.events.Event;
+			import flash.events.MouseEvent;
+			
+			import loginview.User;
+			
+			import main.MediaWikiCaller;
+			import main.WikipediaCaller;
+			
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import spark.components.List;
+			import spark.events.IndexChangeEvent;
+			import spark.events.TextOperationEvent;
+			
+			import utils.Config;
+			
+			
+			private var wg : WikipediaCaller ;
+			private var wg1 : WikipediaCaller ;
+			private var wl : MediaWikiCaller ;
+			
+			/******************
+			 * Declarations
+			 * ***********************/
+			private var selected : String;
+			
+			
+			/****************************************
+			 * Getter and Setters
+			 * ******************************/
+			
+			public function get Selected():String{
+				return selected;
+			}
+			
+			/****************************************
+			 * For Help
+			 * ***************************************/
+			
+			private function hideData():void{
+				data.width= 0;
+				
+			}
+			private function showData():void{
+				data.width= 200;	
+			}
+			
+			/******************************************
+			 * Events
+			 ******************************************/
+			
+			
+			/**
+			 * click List Event
+			 */
+			protected function selectdata_clickHandler(event:MouseEvent):void
+			{
+				data.addEventListener(MouseEvent.CLICK,extractAsynchrone);
+			}
+			
+			/**
+			 * List Search Clicked
+			 */
+			public function extractAsynchrone(event:MouseEvent):void
+			{
+				
+				if(data.selectedItem != null){
+				selected = data.selectedItem.label;
+				var epcurrent:EndPoint = endpoint.selectedItem as EndPoint;
+				
+				if(epcurrent.index == 0)
+				{
+					parentApplication.viewing.setPage(selected);
+				} else {
+					wg = new WikipediaCaller(epcurrent.value);
+					wg.ExtractPage(selected,getterasynchrone);
+				}
+				}
+			}
+			
+			public function getterasynchrone(e:ResultEvent):void
+			{
+				
+				wl = new MediaWikiCaller(Config.urlserverapi);
+				wl.editPage(selected,wg.Response.lastResult.api.query.pages.page.extract,User.getUser().getEditToken(),saveInLocal);
+			}
+			
+			protected function saveInLocal(e:ResultEvent):void
+			{
+				Alert.show("Ajoute de entrée OK");
+				parentApplication.viewing.setPage(selected);
+			}
+			/**
+			 * HIDE LIST SEARCH WHEN NOTHING IN SEARCH FILED
+			 */
+			protected function search_changeHandler(event:TextOperationEvent):void
+			{
+				if(search.text == ""){
+					hideData();
+				}
+			}
+			
+			/**
+			 * Search IN WIKIPEDIA
+			 */
+			protected function search_enterHandler(event:FlexEvent):void
+			{
+				var epcurrent:EndPoint = endpoint.selectedItem as EndPoint;
+				wg1 = new WikipediaCaller(epcurrent.value);
+				wg1.Search(search.text,"30",searchAsyncrone);
+			}
+			
+			/**
+			 * REsult SHOW after RESULT COMPLETE
+			 */
+			private function searchAsyncrone(e: Event):void
+			{
+				resdata.parse(wg1.Response.lastResult);
+				showData();
+				
+			}
+			
+			private var autorisedEndpointchange : Boolean =false;
+			protected function endpoint_changeHandler(event:IndexChangeEvent):void
+			{
+				if(!autorisedEndpointchange){
+					Alert.show("Do you want to save your changes?", "Save Changes", Alert.YES|Alert.NO, this, alertClickHandler);
+				}
+			}
+			
+			// Event handler function for displaying the selected Alert button.
+			private function alertClickHandler(evt:CloseEvent):void {
+				
+				if (evt.detail == Alert.YES) {
+					autorisedEndpointchange = true;
+				} else {
+					endpoint.selectedIndex = 0;
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		
+		<searchview:ResultSearch id="resdata"/>
+		
+	</fx:Declarations>
+	<s:TextInput id="search" width="100%" height="30" change="search_changeHandler(event)"
+				 enter="search_enterHandler(event)"/>
+	<s:ComboBox id="endpoint" width="100%" change="endpoint_changeHandler(event)" selectedIndex="0">
+		<s:ArrayList>
+			<searchview:EndPoint label="Local Media Wiki" index="0"
+								 value="{Config.urlserverapi}"/>
+			<searchview:EndPoint label="English" index="1" value="http://en.wikipedia.org/w/api.php"/>
+			<searchview:EndPoint label="Français" index="2" value="http://fr.wikipedia.org/w/api.php"/>
+			<searchview:EndPoint label="Español" index="3" value="http://es.wikipedia.org/w/api.php"/>
+			<searchview:EndPoint label="Deutsch" index="4" value="http://de.wikipedia.org/w/api.php"/>
+			<searchview:EndPoint label="Italiano" index="5" value="http://it.wikipedia.org/w/api.php"/>
+		</s:ArrayList>
+	</s:ComboBox>
+	<s:SkinnableContainer width="100%" height="100%">
+		<s:layout>
+			<s:VerticalLayout/>
+		</s:layout>
+		<s:List id="data" visible="true" width="100%" height="100%" minHeight="30"
+				click="selectdata_clickHandler(event)" dataProvider="{resdata.Pages}">
+			<s:layout>
+				<s:VerticalLayout/>
+			</s:layout>
+		</s:List>
+		
+	</s:SkinnableContainer>
+</s:Group>

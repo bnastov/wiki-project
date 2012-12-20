@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" 
+		 creationComplete="init()">
+	<s:layout>
+		<s:VerticalLayout horizontalAlign="left"/>
+	</s:layout>
+	<fx:Script>
+		<![CDATA[
+			import database.Persitance;
+			
+			import mx.controls.Alert;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.object_proxy;
+			
+			import utils.Config;
+			
+			private var loginManager:LoginManager;
+			public  function complete():void
+			{
+				mediawikiserver.text = Config.urlserver;
+				trace("Login Created");	
+			}
+			/**
+			 * Initializes the event listeners once Parsley has completed
+			 * injecting.
+			 */
+			public function init():void {
+				complete();
+				loginManager = new LoginManager(this);
+				loginForm.addEventListener(KeyboardEvent.KEY_DOWN, formCheckKey);
+				//loginManager.addEventListener(SecurityEvent.LOGIN_FAILED, loginFailed);
+			}
+			
+			/** Called to clear the form elements. */
+			public function clearForm():void {
+				username.text = "";
+				password.text = "";
+			}
+			
+			/** Event handler to cause a login when enter is pressed. */
+			private function formCheckKey(event:KeyboardEvent):void {
+				if(event.charCode == Keyboard.ENTER) {				
+					doLogin();
+				}
+			}
+			
+			/** Invoked to login using the credentials in the form. */
+			private function doLogin():void {
+				loginManager.login(username.text, password.text);
+				//close();
+			}
+			
+			
+			public function setHeaderMessage(message:String):void{}
+			
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				var request:URLRequest = new URLRequest(Config.urlserverget+"?title=Sp%C3%A9cial:Connexion&returnto=Accueil&returntoquery=action%3Dedit&type=signup");
+				navigateToURL(request, "_blank");
+			}
+			
+			/**  Change the base MediaWiki server adress,
+			 *   Reconfigure the confir.xml file
+			 *   Reinitialise the LoadingManager with the new URL*/
+			protected function changeServerURL(event:MouseEvent):void
+			{
+				var url:String = mediawikiserver.text;
+				Alert.show("MediaWiki URL changed");				
+				Config.changeServerUrl(url);
+				loginManager = new LoginManager(this);
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:Spacer width="139" height="85"/>
+	<s:Form id="loginForm" x="-1" y="166">
+		<s:FormItem width="100%" label="User Name:">
+			<s:TextInput id="username" width="100%"/>
+		</s:FormItem>
+		<s:FormItem width="100%" label="Password:">
+			<s:TextInput id="password" width="100%" displayAsPassword="true"/>
+		</s:FormItem>
+		<s:FormItem width="100%">
+			<s:HGroup>
+				<s:Button id="button" label="Login" click="doLogin()"/>
+				<s:Button label="New Accout" click="button1_clickHandler(event)"/>
+			</s:HGroup>			
+		</s:FormItem>
+		<s:FormItem width="100%">
+			<s:Label id="status" visible="false" color="#FF0000" text="Status"/>
+		</s:FormItem>
+	</s:Form>
+	<s:HGroup width="352" height="41">
+		<s:FormItem width="458" label="Media Wiki Server :">
+			<s:layout>
+				<s:HorizontalLayout/>
+			</s:layout>
+			<s:TextInput id="mediawikiserver" width="189" enabled="true"/>
+			<s:Button label="Change the Server" click="changeServerURL(event)" enabled="true"/>
+		</s:FormItem>
+	</s:HGroup>
+
+</s:Group>

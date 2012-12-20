@@ -1,0 +1,14 @@
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+@namespace wikipedia "wikipedia.*";
+@namespace mediawiki "mediawiki.*";
+@namespace htmlview "htmlview.*";
+		
+.application {
+	backgroundColor : #F6F6F6;
+}
+
+.menu{
+	backgroundColor : #000000;
+	
+}
