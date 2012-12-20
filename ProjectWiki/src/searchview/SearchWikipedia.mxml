@@ -162,7 +162,7 @@
 	<s:ComboBox id="endpoint" width="100%" change="endpoint_changeHandler(event)" selectedIndex="0">
 		<s:ArrayList>
 			<searchview:EndPoint label="Local Media Wiki" index="0"
-								 value="http://127.0.0.1/wiki/api.php"/>
+								 value="{parentApplication.urlServerLocal}"/>
 			<searchview:EndPoint label="English" index="1" value="http://en.wikipedia.org/w/api.php"/>
 			<searchview:EndPoint label="Français" index="2" value="http://fr.wikipedia.org/w/api.php"/>
 			<searchview:EndPoint label="Español" index="3" value="http://es.wikipedia.org/w/api.php"/>

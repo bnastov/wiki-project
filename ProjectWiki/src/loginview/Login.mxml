@@ -90,7 +90,8 @@
 			</s:layout>
 			<s:TextInput id="mediawikiserver" width="189" enabled="false"
 						 text="http://127.0.0.1/wiki/api.php"/>
-			<s:Button label="Change the Server" click="button2_clickHandler(event)" enabled="false"/>
+			<s:Button label="Change the Server" click="button2_clickHandler(event)" enabled="false"
+					  toolTip="you must buy the complete version to use it"/>
 		</s:FormItem>
 	</s:HGroup>
 

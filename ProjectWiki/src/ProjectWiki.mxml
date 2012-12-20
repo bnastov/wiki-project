@@ -19,8 +19,8 @@
 			import mx.controls.Alert;
 
 			public var db : Persitance = new Persitance("history.db");
-			public var urlServerLocal:String = "http://127.0.0.1/wiki/api.php";
-			public var urlServerGet:String = "http://127.0.0.1/wiki/index.php";
+			public var urlServerLocal:String = "http://127.0.0.1:8887/mediawiki-1.20.0/api.php";
+			public var urlServerGet:String = "http://127.0.0.1:8887/mediawiki-1.20.0/index.php";
 			
 			protected function initApp():void
 			{
