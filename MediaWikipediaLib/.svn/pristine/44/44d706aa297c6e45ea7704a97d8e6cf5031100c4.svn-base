@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<flexLibProperties includeAllClasses="true" useMultiPlatformConfig="false" version="3">
+  <includeClasses>
+    <classEntry path="main.MediaWikiCaller"/>
+    <classEntry path="main.Autentification"/>
+    <classEntry path="main.WikipediaCaller"/>
+    <classEntry path="main.Caller"/>
+  </includeClasses>
+  <includeResources/>
+  <namespaceManifests/>
+</flexLibProperties>
